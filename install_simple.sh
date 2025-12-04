@@ -7,18 +7,19 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 echo "Installing dependencies..."
-# 2. Install dependencies (curl, qrencode for jpg, jq for json, uuid-runtime)
+# 2. Install dependencies
 apt-get update -qq >/dev/null
 apt-get install -y curl qrencode jq uuid-runtime >/dev/null 2>&1
 
 echo "Installing V2Ray..."
-# 3. Install V2Ray using the official script
-bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) >/dev/null 2>&1
+# 3. Install V2Ray (Forces IPv4 for download)
+bash <(curl -4 -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) >/dev/null 2>&1
 
 # 4. Generate Random Variables
 PORT=$(shuf -i 10000-60000 -n1)
 UUID=$(uuidgen)
-IP=$(curl -s ifconfig.me)
+# Get Public IPv4 Address strictly
+IP=$(curl -4 -s ifconfig.me)
 
 # 5. Write Configuration (VMess + TCP)
 cat <<EOF > /usr/local/etc/v2ray/config.json
@@ -57,7 +58,7 @@ systemctl enable v2ray >/dev/null 2>&1
 systemctl restart v2ray
 
 # 7. Generate VMess Link
-# Create the JSON structure for the link
+# Create the JSON structure
 VMESS_JSON=$(jq -n \
     --arg v "2" \
     --arg ps "${IP}" \
@@ -72,7 +73,7 @@ VMESS_JSON=$(jq -n \
     --arg tls "" \
     '{v:$v, ps:$ps, add:$add, port:$port, id:$id, aid:$aid, net:$net, type:$type, host:$host, path:$path, tls:$tls}')
 
-# Base64 encode the JSON to create the vmess:// link
+# Base64 encode
 VMESS_LINK="vmess://$(echo -n $VMESS_JSON | base64 -w 0)"
 
 # 8. Generate QR Code Image (JPG)
@@ -80,7 +81,7 @@ qrencode -o v2ray_qr.jpg -s 10 "$VMESS_LINK"
 
 # 9. Output Results
 echo "------------------------------------------------------"
-echo "Installation Complete."
+echo "Installation Complete (IPv4 Only)."
 echo ""
 echo "VMess Link:"
 echo "$VMESS_LINK"
