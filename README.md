@@ -11,6 +11,12 @@ bash <(curl -L https://raw.githubusercontent.com/EdNovas/vmess-tcp/refs/heads/ma
 bash <(curl -L https://raw.githubusercontent.com/EdNovas/vmess-tcp/refs/heads/main/install_socks.sh)
 ```
 
+# run for install both vmess and socks5
+
+```
+bash <(curl -L https://raw.githubusercontent.com/EdNovas/vmess-tcp/refs/heads/main/install_both.sh)
+```
+
 # uninstall
 
 ```
