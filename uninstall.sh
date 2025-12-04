@@ -13,24 +13,23 @@ systemctl disable v2ray >/dev/null 2>&1
 
 echo "Removing V2Ray..."
 # 3. Remove V2Ray using the official removal command
-# The script we used supports a --remove flag to uninstall core files
+# This removes the core binary and systemd service files
 bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) --remove >/dev/null 2>&1
 
 # 4. Remove Configuration and Logs
-# The removal script might leave config files behind, so we delete them manually
+# Clean up config files created by either script
 rm -rf /usr/local/etc/v2ray
 rm -rf /var/log/v2ray
-# Remove the generated systemd service file if it still exists
 rm -f /etc/systemd/system/v2ray.service
 rm -f /etc/systemd/system/v2ray@.service
 
 echo "Removing generated files..."
-# 5. Remove the local QR code image
+# 5. Remove artifacts from current directory
 rm -f v2ray_qr.jpg
 
 echo "Removing dependencies..."
-# 6. Remove packages installed by the script
-# Note: We are NOT removing 'curl' as it is a common system tool you might need.
+# 6. Remove packages installed by the scripts
+# Note: curl is preserved as it is a common utility
 apt-get remove -y qrencode jq uuid-runtime >/dev/null 2>&1
 apt-get autoremove -y >/dev/null 2>&1
 
